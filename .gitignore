@@ -55,3 +55,6 @@ connections-source.json
 
 webdav
 ocapi-settings
+
+dw.json
+default.js

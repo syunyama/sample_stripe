@@ -3,7 +3,7 @@
     <name>RefArch</name>
     <currency>USD</currency>
     <taxation>net</taxation>
-    <custom-cartridges>plugin_cartridge_merge:plugin_instorepickup:plugin_wishlists:plugin_giftregistry:lib_productlist:plugin_productcompare:plugin_sitemap:plugin_applepay:plugin_datadownload:app_storefront_base</custom-cartridges>
+    <custom-cartridges>sample_custom_stripe:app_storefront_base</custom-cartridges>
     <storefront-status>online</storefront-status>
     <home-page-meta-tag-rules>
         <page-meta-tag-rule rule-id="Homepage Title"/>

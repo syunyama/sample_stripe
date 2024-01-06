@@ -2,9 +2,9 @@
 <metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
     <type-extension type-id="Profile">
         <custom-attribute-definitions>
-            <attribute-definition attribute-id="StripeCustomerId">
-                <display-name xml:lang="x-default">Stripe customer ID</display-name>
-                <description xml:lang="x-default">Stripe customer ID</description>
+            <attribute-definition attribute-id="stripeCustomerId">
+                <display-name xml:lang="x-default">Stripe customer id</display-name>
+                <description xml:lang="x-default">Stripe customer id</description>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
@@ -15,7 +15,52 @@
             <attribute-group group-id="Stripe">
                 <display-name xml:lang="x-default">Stripe attributes</display-name>
                 <description xml:lang="x-default">Stripe attributes of profile</description>
-                <attribute attribute-id="StripeCustomerId" />
+                <attribute attribute-id="stripeCustomerId" />
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+    <type-extension type-id="OrderPaymentInstrument">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stripePaymentMethodId">
+                <display-name xml:lang="x-default">Stripe payment method id</display-name>
+                <description xml:lang="x-default">Stripe payment method id</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stripeIntentId">
+                <display-name xml:lang="x-default">Stripe intent id</display-name>
+                <description xml:lang="x-default">Stripe intent id</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stripeClientSecret">
+                <display-name xml:lang="x-default">Stripe creent secret</display-name>
+                <description xml:lang="x-default">Stripe creent secret</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="willSaved">
+                <display-name xml:lang="x-default">Whether card will be saved</display-name>
+                <description xml:lang="x-default">Whether card will be saved</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Stripe">
+                <display-name xml:lang="x-default">Stripe attributes</display-name>
+                <description xml:lang="x-default">Stripe attributes of order payment instrument</description>
+                <attribute attribute-id="stripePaymentMethodId" />
+                <attribute attribute-id="stripeIntentId" />
+                <attribute attribute-id="stripeClientSecret" />
+                <attribute attribute-id="willSaved" />
             </attribute-group>
         </group-definitions>
     </type-extension>
