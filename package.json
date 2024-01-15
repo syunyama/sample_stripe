@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/syunyama/sample_stripe#readme",
   "devDependencies": {
-    "@SalesforceCommerceCloud/b2c-tools": "^0.19.0"
+    "@SalesforceCommerceCloud/b2c-tools": "file:dependencies/b2c-tools"
   }
 }

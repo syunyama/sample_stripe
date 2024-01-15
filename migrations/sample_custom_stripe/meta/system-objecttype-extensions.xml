@@ -29,6 +29,13 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="willSaved">
+                <display-name xml:lang="x-default">Whether card will be saved</display-name>
+                <description xml:lang="x-default">Whether card will be saved</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="stripeIntentId">
                 <display-name xml:lang="x-default">Stripe intent id</display-name>
                 <description xml:lang="x-default">Stripe intent id</description>
@@ -45,23 +52,46 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
-            <attribute-definition attribute-id="willSaved">
-                <display-name xml:lang="x-default">Whether card will be saved</display-name>
-                <description xml:lang="x-default">Whether card will be saved</description>
-                <type>boolean</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="Stripe">
                 <display-name xml:lang="x-default">Stripe attributes</display-name>
                 <description xml:lang="x-default">Stripe attributes of order payment instrument</description>
-                <attribute attribute-id="stripePaymentMethodId" />
                 <attribute attribute-id="stripeIntentId" />
                 <attribute attribute-id="stripeClientSecret" />
+                <attribute attribute-id="stripePaymentMethodId" />
                 <attribute attribute-id="willSaved" />
             </attribute-group>
         </group-definitions>
     </type-extension>
+    <type-extension type-id="Basket">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="stripeIntentId">
+                <display-name xml:lang="x-default">Stripe intent id</display-name>
+                <description xml:lang="x-default">Stripe intent id</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stripeClientSecret">
+                <display-name xml:lang="x-default">Stripe creent secret</display-name>
+                <description xml:lang="x-default">Stripe creent secret</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Stripe">
+                <display-name xml:lang="x-default">Stripe attributes</display-name>
+                <description xml:lang="x-default">Stripe attributes of basket</description>
+                <attribute attribute-id="stripeIntentId" />
+                <attribute attribute-id="stripeClientSecret" />
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+
 </metadata>

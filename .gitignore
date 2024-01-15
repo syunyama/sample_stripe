@@ -16,10 +16,7 @@ cartridges/*/cartridge/static/*/css/*
 cartridges/*/cartridge/static/*/js/*
 cartridges/brands/*/cartridge/static/*/css/*
 cartridges/brands/*/cartridge/static/*/js/*
-dependencies/*/cartridge/static/*/css/*
-dependencies/*/cartridge/static/*/js/*
-dependencies/*/cartridges/*/cartridge/static/*/css/*
-dependencies/*/cartridges/*/cartridge/static/*/js/*
+dependencies
 features/*/cartridges/*/cartridge/static/*/css/*
 features/*/cartridges/*/cartridge/static/*/js/*
 cartridges/*/cartridge/static/*/js/**/*.js
@@ -58,3 +55,4 @@ ocapi-settings
 
 dw.json
 default.js
+.npmrc
