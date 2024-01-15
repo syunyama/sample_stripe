@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage, useIntl} from 'react-intl'
 import {Box, Button, Checkbox, Container, Heading, Stack, Text, Divider} from '@chakra-ui/react'
@@ -22,13 +22,15 @@ import {
     ToggleCardEdit,
     ToggleCardSummary
 } from '@salesforce/retail-react-app/app/components/toggle-card'
-import PaymentForm from '@salesforce/retail-react-app/app/pages/checkout/partials/payment-form'
 import ShippingAddressSelection from '@salesforce/retail-react-app/app/pages/checkout/partials/shipping-address-selection'
 import AddressDisplay from '@salesforce/retail-react-app/app/components/address-display'
 import {PromoCode, usePromoCode} from '@salesforce/retail-react-app/app/components/promo-code'
 import {API_ERROR_MESSAGE} from '@salesforce/retail-react-app/app/constants'
 
-const Payment = () => {
+/****** Sample Stripe Added Start ******/
+import {CardElement, useElements, useStripe} from '@stripe/react-stripe-js'
+const Payment = ({stripeObj, setStripeObj}) => {
+    /****** Sample Stripe Added End ******/
     const {formatMessage} = useIntl()
     const {data: basket} = useCurrentBasket()
     const selectedShippingAddress = basket?.shipments && basket?.shipments[0]?.shippingAddress
@@ -52,6 +54,19 @@ const Payment = () => {
         })
     }
 
+    /****** Sample Stripe Added Start ******/
+    useEffect(() => {
+        if (basket && appliedPayment) {
+            setStripeObj({
+                stripeIntentId: basket.c_stripeIntentId,
+                stripeClientSecret: basket.c_stripeClientSecret,
+                stripePyamentMethodId: appliedPayment.c_stripePyamentMethodId,
+                willSaved: appliedPayment.c_willSaved
+            })
+        }
+    }, [basket, appliedPayment])
+    /****** Sample Stripe Added End ******/
+
     const {step, STEPS, goToStep, goToNextStep} = useCheckout()
 
     const billingAddressForm = useForm({
@@ -64,29 +79,49 @@ const Payment = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {removePromoCode, ...promoCodeProps} = usePromoCode()
 
-    const paymentMethodForm = useForm()
-
-    const onPaymentSubmit = async (formValue) => {
-        // The form gives us the expiration date as `MM/YY` - so we need to split it into
-        // month and year to submit them as individual fields.
-        const [expirationMonth, expirationYear] = formValue.expiry.split('/')
-
+    /****** Sample Stripe Added Start ******/
+    const stripe = useStripe()
+    const elements = useElements()
+    const onPaymentSubmit = async () => {
+        const result = await stripe.createPaymentMethod({
+            type: 'card',
+            card: elements.getElement(CardElement)
+        })
+        if (result.error) {
+            showToast({
+                title: result.error.message,
+                status: 'error'
+            })
+            return
+        }
+        const paymentMethod = result.paymentMethod
         const paymentInstrument = {
-            paymentMethodId: 'CREDIT_CARD',
+            paymentMethodId: 'STRIPE',
+            c_stripePyamentMethodId: paymentMethod.id,
+            c_willSaved: stripeObj.willSaved,
             paymentCard: {
-                holder: formValue.holder,
-                issueNumber: formValue.number.replace(/ /g, ''),
-                cardType: getPaymentInstrumentCardType(formValue.cardType),
-                expirationMonth: parseInt(expirationMonth),
-                expirationYear: parseInt(`20${expirationYear}`)
+                maskedNumber: `*********${paymentMethod.card.last4}`,
+                cardType: getPaymentInstrumentCardType(paymentMethod.card.brand),
+                expirationMonth: parseInt(paymentMethod.card.exp_month),
+                expirationYear: parseInt(paymentMethod.card.exp_year)
             }
         }
-
-        return addPaymentInstrumentToBasket({
+        const basketResult = await addPaymentInstrumentToBasket({
             parameters: {basketId: basket?.basketId},
             body: paymentInstrument
         })
+        const instrument = basketResult.paymentInstruments.find(
+            (item) => item.paymentMethodId === 'STRIPE'
+        )
+        setStripeObj({
+            stripeIntentId: basket.c_stripeIntentId,
+            stripeClientSecret: basket.c_stripeClientSecret,
+            stripePyamentMethodId: instrument.c_stripePyamentMethodId,
+            willSaved: instrument.c_willSaved
+        })
     }
+    /****** Sample Stripe Added End ******/
+
     const onBillingSubmit = async () => {
         const isFormValid = await billingAddressForm.trigger()
 
@@ -112,28 +147,30 @@ const Payment = () => {
                     paymentInstrumentId: appliedPayment.paymentInstrumentId
                 }
             })
+            setStripeObj({
+                willSaved: false
+            })
         } catch (e) {
             showError()
         }
     }
 
-    const onSubmit = paymentMethodForm.handleSubmit(async (paymentFormValues) => {
+    /****** Sample Stripe Added Start ******/
+    const onSubmit = async () => {
         if (!appliedPayment) {
-            await onPaymentSubmit(paymentFormValues)
+            await onPaymentSubmit()
         }
         await onBillingSubmit()
         goToNextStep()
-    })
+    }
+    /****** Sample Stripe Added End ******/
 
     return (
         <ToggleCard
             id="step-3"
             title={formatMessage({defaultMessage: 'Payment', id: 'checkout_payment.title.payment'})}
             editing={step === STEPS.PAYMENT}
-            isLoading={
-                paymentMethodForm.formState.isSubmitting ||
-                billingAddressForm.formState.isSubmitting
-            }
+            isLoading={billingAddressForm.formState.isSubmitting}
             disabled={appliedPayment == null}
             onEdit={() => goToStep(STEPS.PAYMENT)}
         >
@@ -144,7 +181,28 @@ const Payment = () => {
 
                 <Stack spacing={6}>
                     {!appliedPayment?.paymentCard ? (
-                        <PaymentForm form={paymentMethodForm} onSubmit={onPaymentSubmit} />
+                        <Stack spacing={3}>
+                            {/****** Sample Stripe Added Start ******/}
+                            <CardElement
+                                options={{
+                                    hidePostalCode: true
+                                }}
+                            ></CardElement>
+                            <Stack direction="row" spacing={4}>
+                                <Checkbox
+                                    isChecked={stripeObj ? stripeObj.willSaved : false}
+                                    onChange={(e) =>
+                                        setStripeObj({
+                                            ...stripeObj,
+                                            willSaved: e.target.checked
+                                        })
+                                    }
+                                >
+                                    Save this card
+                                </Checkbox>
+                            </Stack>
+                            {/****** Sample Stripe Added Start ******/}
+                        </Stack>
                     ) : (
                         <Stack spacing={3}>
                             <Heading as="h3" fontSize="md">
@@ -253,6 +311,13 @@ const Payment = () => {
         </ToggleCard>
     )
 }
+
+/****** Sample Stripe Added Start ******/
+Payment.propTypes = {
+    stripeObj: PropTypes.object,
+    setStripeObj: PropTypes.func
+}
+/****** Sample Stripe Added End ******/
 
 const PaymentCardSummary = ({payment}) => {
     const CardIcon = getCreditCardIcon(payment?.paymentCard?.cardType)

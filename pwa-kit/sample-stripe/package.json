@@ -48,5 +48,9 @@
     "iOS >= 9.0",
     "Android >= 4.4.4",
     "last 4 ChromeAndroid versions"
-  ]
+  ],
+  "dependencies": {
+    "@stripe/react-stripe-js": "^2.4.0",
+    "@stripe/stripe-js": "^2.2.2"
+  }
 }

@@ -8,9 +8,9 @@
 'use strict'
 
 import path from 'path'
-import {getRuntime} from '@salesforce/pwa-kit-runtime/ssr/server/express'
-import {defaultPwaKitSecurityHeaders} from '@salesforce/pwa-kit-runtime/utils/middleware'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+import { getRuntime } from '@salesforce/pwa-kit-runtime/ssr/server/express'
+import { defaultPwaKitSecurityHeaders } from '@salesforce/pwa-kit-runtime/utils/middleware'
+import { getConfig } from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import helmet from 'helmet'
 
 const options = {
@@ -34,7 +34,7 @@ const options = {
 
 const runtime = getRuntime()
 
-const {handler} = runtime.createHandler(options, (app) => {
+const { handler } = runtime.createHandler(options, (app) => {
     // Set default HTTP security headers required by PWA Kit
     app.use(defaultPwaKitSecurityHeaders)
     // Set custom HTTP security headers
@@ -49,12 +49,18 @@ const {handler} = runtime.createHandler(options, (app) => {
                     ],
                     'script-src': [
                         // Used by the service worker in /worker/main.js
-                        'storage.googleapis.com'
+                        'storage.googleapis.com',
+                        /****** Sample Stripe Added Start ******/
+                        'js.stripe.com'
+                        /****** Sample Stripe Added End ******/
                     ],
                     'connect-src': [
                         // Connect to Einstein APIs
                         'api.cquotient.com'
-                    ]
+                    ],
+                    /****** Sample Stripe Added Start ******/
+                    'frame-src': ['js.stripe.com']
+                    /****** Sample Stripe Added End ******/
                 }
             }
         })

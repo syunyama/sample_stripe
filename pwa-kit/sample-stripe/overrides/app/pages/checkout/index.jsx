@@ -15,12 +15,19 @@ import {
 import ContactInfo from '@salesforce/retail-react-app/app/pages/checkout/partials/contact-info'
 import ShippingAddress from '@salesforce/retail-react-app/app/pages/checkout/partials/shipping-address'
 import ShippingOptions from '@salesforce/retail-react-app/app/pages/checkout/partials/shipping-options'
-import Payment from '@salesforce/retail-react-app/app/pages/checkout/partials/payment'
+/******  Sample Stripe Added Start ******/
+import Payment from './partials/payment'
+/****** Sample Stripe Added End ******/
 import OrderSummary from '@salesforce/retail-react-app/app/components/order-summary'
 import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
 import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
 import CheckoutSkeleton from '@salesforce/retail-react-app/app/pages/checkout/partials/checkout-skeleton'
 import {useUsid, useShopperOrdersMutation} from '@salesforce/commerce-sdk-react'
+
+/******  Sample Stripe Added Start ******/
+import {loadStripe} from '@stripe/stripe-js'
+import {Elements, useStripe} from '@stripe/react-stripe-js'
+/****** Sample Stripe Added End ******/
 
 const Checkout = () => {
     const {formatMessage} = useIntl()
@@ -32,6 +39,13 @@ const Checkout = () => {
     const [isLoading, setIsLoading] = useState(false)
     const {mutateAsync: createOrder} = useShopperOrdersMutation('createOrder')
 
+    /****** Sample Stripe Added Start ******/
+    const [stripeObj, setStripeObj] = useState({
+        willSaved: false
+    })
+    const stripe = useStripe()
+    /****** Sample Stripe Added End ******/
+
     useEffect(() => {
         if (error || step === 4) {
             window.scrollTo({top: 0})
@@ -41,6 +55,17 @@ const Checkout = () => {
     const submitOrder = async () => {
         setIsLoading(true)
         try {
+            /****** Sample Stripe Added Start ******/
+            const options = {}
+            if (stripeObj.willSaved) {
+                options['setup_future_usage'] = 'off_session'
+            }
+            const result = await stripe.confirmCardPayment(stripeObj.stripeClientSecret, options)
+            if (result.error) {
+                throw new Error(result.error.message)
+            }
+            /****** Sample Stripe Added End ******/
+
             const order = await createOrder({
                 // We send the SLAS usid via this header. This is required by ECOM to map
                 // Einstein events sent via the API with the finishOrder event fired by ECOM
@@ -82,7 +107,9 @@ const Checkout = () => {
                             <ContactInfo />
                             <ShippingAddress />
                             <ShippingOptions />
-                            <Payment />
+                            {/****** Sample Stripe Added Start ******/}
+                            <Payment stripeObj={stripeObj} setStripeObj={setStripeObj} />
+                            {/****** Sample Stripe Added End ******/}
 
                             {step === 4 && (
                                 <Box pt={3} display={{base: 'none', lg: 'block'}}>
@@ -154,6 +181,16 @@ const Checkout = () => {
 const CheckoutContainer = () => {
     const {data: customer} = useCurrentCustomer()
     const {data: basket} = useCurrentBasket()
+    /****** Sample Stripe Added Start ******/
+    const [stripePromise, setStripePromise] = useState(null)
+    useEffect(() => {
+        setStripePromise(
+            loadStripe(
+                '{Your API key}'
+            )
+        )
+    }, [])
+    /****** Sample Stripe Added End ******/
 
     if (!customer || !customer.customerId || !basket || !basket.basketId) {
         return <CheckoutSkeleton />
@@ -161,7 +198,11 @@ const CheckoutContainer = () => {
 
     return (
         <CheckoutProvider>
-            <Checkout />
+            {/****** Sample Stripe Added Start ******/}
+            <Elements stripe={stripePromise}>
+                <Checkout />
+            </Elements>
+            {/****** Sample Stripe Added End ******/}
         </CheckoutProvider>
     )
 }
